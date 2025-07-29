@@ -236,14 +236,14 @@ def get_models():
     }
 
 @st.cache_data(show_spinner="A executar decomposição Bias-Variância...")
-def evaluate_bias_variance_all(models, X, y, test_size=0.2, num_rounds=100):
+def evaluate_bias_variance_all(_models, X, y, test_size=0.2, num_rounds=100): # Changed 'models' to '_models'
     """Executa a decomposição Bias-Variância para múltiplos modelos."""
     split = int(len(X) * (1 - test_size))
     X_train, X_test = X[:split], X[split:]
     y_train, y_test = y[:split], y[split:]
 
     results = {}
-    for name, model in models.items():
+    for name, model in _models.items(): # Use _models here
         if len(y_train) == 0 or len(y_test) == 0:
             results[name] = {'Total Error': np.nan, 'Bias': np.nan, 'Variance': np.nan, 'Irreducible Error': np.nan}
             continue
@@ -360,7 +360,7 @@ if st.session_state.run_analysis:
 
         if not X_bv.empty and not y_bv.empty:
             models = get_models()
-            bv_results = evaluate_bias_variance_all(models, X_bv, y_bv, num_rounds=50) # Reduzido para Streamlit
+            bv_results = evaluate_bias_variance_all(_models=models, X=X_bv, y=y_bv, num_rounds=50) # Pass _models
             st.write("Resultados da Decomposição Bias-Variância (Sem Estacionarização):")
             st.dataframe(bv_results)
         else:
@@ -425,8 +425,7 @@ if st.session_state.run_analysis:
         y_bv_differenced = y_bv_differenced.loc[X_bv_differenced.index]
 
         if not X_bv_differenced.empty and not y_bv_differenced.empty:
-            models = get_models()
-            bv_results_differenced = evaluate_bias_variance_all(models, X_bv_differenced, y_bv_differenced, num_rounds=50) # Reduzido para Streamlit
+            bv_results_differenced = evaluate_bias_variance_all(_models=models, X=X_bv_differenced, y=y_bv_differenced, num_rounds=50) # Pass _models
             st.write("Resultados da Decomposição Bias-Variância (Com Preditores Estacionarizados):")
             st.dataframe(bv_results_differenced)
             st.info("O modelo GradientBoosting geralmente oferece um bom equilíbrio e menor erro total.")
