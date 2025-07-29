@@ -116,7 +116,7 @@ def compute_target(df: pd.DataFrame) -> pd.Series:
     return df['Close'].pct_change(periods=5).shift(-5)
 
 @st.cache_data(show_spinner="A executar otimização walk-forward e extração de features...")
-def walk_forward_with_pca_vif(data, model, window_size=250, step_size=1, n_components=4):
+def walk_forward_with_pca_vif(data, _model, window_size=250, step_size=1, n_components=4): # Changed 'model' to '_model'
     """Executa a otimização walk-forward com PCA e VIF."""
     predictions = []
     prediction_indices = []
@@ -160,7 +160,7 @@ def walk_forward_with_pca_vif(data, model, window_size=250, step_size=1, n_compo
         if selected_pcs.empty or test_selected.empty:
             continue
 
-        model_clone = clone(model)
+        model_clone = clone(_model) # Use _model here
         model_clone.fit(selected_pcs, y_train)
         prediction = model_clone.predict(test_selected)[0]
         predictions.append(prediction)
@@ -436,7 +436,7 @@ if st.session_state.run_analysis:
         st.subheader("8. Previsão Walk-Forward e Backtesting")
         model = GradientBoostingRegressor(n_estimators=100, random_state=42)
         pred_series_differenced, last_scaler, last_pca, last_vif_scores, last_trained_model, last_selected_pc_indices = \
-            walk_forward_with_pca_vif(data_merged_differenced, model, window_size=window_size_input, n_components=n_components_pca_input)
+            walk_forward_with_pca_vif(data_merged_differenced, _model=model, window_size=window_size_input, n_components=n_components_pca_input) # Pass _model
 
         data_merged_differenced['Predictions'] = pred_series_differenced
         data_merged_differenced.dropna(subset=['Predictions'], inplace=True)
